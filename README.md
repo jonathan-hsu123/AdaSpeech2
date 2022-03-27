@@ -46,7 +46,13 @@ e_max = Max energy
 
 ## Training :
 
-[WIP]
+Use "python3 train_fastspeech.py -d ${data_path} -c ${config file}"
+
+## wav2mel:
+Use "python3 wav2mel.py -c ${config file}" to transform wav to mel spectrogram, you can alter wav2mel.py to change input and output names.
+
+## Inference :
+Use "bash inference.sh", you can alter wav2mel.py to change input and output names.
 
 ## Note :
 * For more complete and end to end Voice cloning or Text to Speech (TTS) toolbox please visit [Deepsync Technologies](https://deepsync.co/).
