@@ -141,7 +141,8 @@ def main(args):
     print("Text : ", args.text)
     print("Checkpoint : ", args.checkpoint_path)
     ref_mel = np.load(args.ref_mel)
-    ref_mel = torch.from_numpy(ref_mel).T
+    ref_mel = torch.from_numpy(ref_mel).T.cuda()
+    print(args.ref_mel)
     if os.path.exists(args.checkpoint_path):
         checkpoint = torch.load(args.checkpoint_path)
     else:
@@ -199,7 +200,8 @@ def main(args):
         m = m.unsqueeze(0)
         wav = griffin_lim(m, stft, 30)
         wav = wav.cpu().numpy()
-    save_path = "{}/test_tts.wav".format(args.out)
+    save_path = "./wav/Eleanor.wav"
+    print(save_path)
     write(save_path, hp.audio.sample_rate, wav.astype("int16"))
 
 

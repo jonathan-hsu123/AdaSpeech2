@@ -50,7 +50,6 @@ def preprocess(data_path, hp, file):
     for metadata in tqdm.tqdm(_metadata, desc="preprocess wav to mel"):
         wavpath = os.path.join(data_path, metadata[4])
         sr, wav = read_wav_np(wavpath, hp.audio.sample_rate)
-
         dur = str_to_int_list(metadata[2])
         dur = torch.from_numpy(np.array(dur))
 

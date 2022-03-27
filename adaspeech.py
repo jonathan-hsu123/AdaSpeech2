@@ -202,9 +202,10 @@ class FeedForwardTransformer(torch.nn.Module):
         )  # (B, Tmax, adim) -> torch.Size([32, 121, 256])
 
         ## AdaSpeech Specific ##
-
-        uttr = self.utterance_encoder(ys.transpose(1, 2)).transpose(1, 2)
-        hs = hs + uttr.repeat(1, hs.size(1), 1)
+        if ys is not None:
+            uttr = self.utterance_encoder(ys.transpose(1, 2)).transpose(1, 2)
+            hs = hs + uttr.repeat(1, hs.size(1), 1)
+            # print(uttr)
 
         phn = None
         ys_phn = None
@@ -221,8 +222,9 @@ class FeedForwardTransformer(torch.nn.Module):
                 hs = hs + self.phone_level_embed(ys_phn.detach())  # (B, Tmax, 256)
 
         else:
-            ys_phn = self.phoneme_level_encoder(avg_mel.transpose(1, 2))  # (B, Tmax, 4)
-            hs = hs + self.phone_level_embed(ys_phn)  # (B, Tmax, 256)
+            if avg_mel is not None:
+                ys_phn = self.phoneme_level_encoder(avg_mel.transpose(1, 2))  # (B, Tmax, 4)
+                hs = hs + self.phone_level_embed(ys_phn)  # (B, Tmax, 256)
 
 
 
@@ -311,7 +313,7 @@ class FeedForwardTransformer(torch.nn.Module):
 
         # forward propagation
         before_outs, after_outs, d_outs, e_outs, p_outs, phn, ys_phn = self._forward(
-            xs, ilens, olens, ds, es, ps, is_inference=False, avg_mel=avg_mel, phn_level_predictor=phn_level_predictor
+            xs, ilens, ys, olens, ds, es, ps, is_inference=False, avg_mel=avg_mel, phn_level_predictor=phn_level_predictor
         )
 
 
@@ -404,16 +406,16 @@ class FeedForwardTransformer(torch.nn.Module):
         if avg_mel is not None:
             avg_mel = avg_mel.unsqueeze(0)
             # inference
-            before_outs, outs, d_outs, _ = self._forward(xs, ilens=ilens, ys=ref_mel, avg_mel=avg_mel,
+            before_outs, outs, d_outs, _, _ = self._forward(xs, ilens=ilens, ys=ref_mel, avg_mel=avg_mel,
                                                          is_inference=True,
                                                          phn_level_predictor=phn_level_predictor)  # (L, odim)
         else:
-            before_outs, outs, d_outs, _ = self._forward(xs, ilens=ilens, ys=ref_mel, is_inference=True,
+            before_outs, outs, d_outs, _, _ = self._forward(xs, ilens=ilens, ys=ref_mel, is_inference=True,
                                                          phn_level_predictor=phn_level_predictor)  # (L, odim)
 
         # inference
-        _, outs, _, _, _ = self._forward(xs, ilens, is_inference=True)  # (L, odim)
-
+        # _, outs, _, _, _ = self._forward(xs, ilens, is_inference=True)  # (L, odim)
+        print(outs.shape)
         return outs[0]
 
     def _source_mask(self, ilens: torch.Tensor) -> torch.Tensor:
